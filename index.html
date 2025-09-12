@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horror Oracle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #e0e0e0;
+      --accent-color: #b91c1c;
+      --secondary-color: #7d1414;
+      --input-bg: #1a1a1a;
+      --chat-bg: #111111;
+      --user-bubble: #333;
+      --bot-bubble: #222;
+      --blood-color: #7d0b0b;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: linear-gradient(to bottom, #200122, #060107);
+    }
+    
+    .creepster {
+      font-family: 'Creepster', cursive;
+    }
+    
+    .nosifer {
+      font-family: 'Nosifer', cursive;
+    }
+    
+    /* Main container layout */
+    .container {
+      display: flex;
+      flex: 1;
+      padding: 1rem;
+      gap: 2rem; /* Increased spacing */
+      position: relative;
+    }
+    
+    /* Side panel styling */
+    .side-panel {
+      width: 250px;
+      background: rgba(17, 17, 17, 0.7);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      backdrop-filter: blur(10px);
+      transition: width 0.3s ease-in-out;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+
+    .side-panel.collapsed {
+      width: 60px;
+      overflow: hidden;
+      align-items: center;
+      padding: 0.5rem;
+    }
+    
+    .side-panel-title {
+      color: var(--accent-color);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+    }
+
+    /* Info button styling */
+    .info-btn {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 0 10px var(--accent-color);
+      transition: all 0.3s ease;
+    }
+
+    .info-btn:hover {
+      box-shadow: 0 0 20px var(--accent-color);
+      background-color: rgba(185, 28, 28, 0.2);
+    }
+
+    .info-btn:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 150%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.8s ease-in-out;
+    }
+
+    .info-btn:hover:before {
+      transform: translateX(100%);
+    }
+
+    /* Chat window styling */
+    .chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--chat-bg);
+      border: 1px solid #333;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .chat-history {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+    
+    .chat-input-area {
+      padding: 1rem;
+      background: var(--chat-bg);
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .user-bubble {
+      background: var(--user-bubble);
+      align-self: flex-end;
+      color: var(--text-color);
+      margin-left: auto;
+    }
+    
+    .bot-bubble {
+      background: var(--bot-bubble);
+      align-self: flex-start;
+      color: var(--text-color);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .movie-link {
+        color: var(--text-color);
+        font-weight: 500;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    
+    /* Horror news section */
+    .news-container {
+      background: rgba(25, 25, 25, 0.7);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .news-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    
+    .news-date {
+      font-size: 0.7rem;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    
+    .news-excerpt {
+      font-size: 0.8rem;
+      color: #ddd;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    
+    .news-link {
+      font-size: 0.8rem;
+      color: var(--accent-color);
+      text-decoration: underline;
+    }
+    
+    /* Streaming availability */
+    .streaming-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    
+    .streaming-netflix {
+      background: #E50914;
+      color: white;
+    }
+    
+    .streaming-prime {
+      background: #00A8E1;
+      color: white;
+    }
+    
+    .streaming-hulu {
+      background: #1CE783;
+      color: black;
+    }
+    
+    .streaming-shudder {
+      background: #BE0000;
+      color: white;
+    }
+    
+    .streaming-hbo {
+      background: #5822B4;
+      color: white;
+    }
+    
+    /* Forum section */
+    .forum-preview {
+      background: rgba(40, 40, 40, 0.5);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .forum-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    
+    .forum-topic {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    
+    .forum-preview-text {
+      font-size: 0.8rem;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+    
+    .forum-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #888;
+    }
+    
+    /* Horror effects */
+    @keyframes flicker {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+      20%, 80% {
+        opacity: 0.9;
+      }
+    }
+    
+    .flicker {
+      animation: flicker 0.1s infinite;
+    }
+    
+    @keyframes bloodFall {
+      0% {
+        transform: translateY(-200px) scale(0);
+        opacity: 0;
+        height: 15px;
+      }
+      10% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+        height: 15px;
+      }
+      50% {
+        height: 40px;
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(100vh);
+        height: 10px;
+        opacity: 0;
+      }
+    }
+    
+    .blood-drop {
+      position: fixed;
+      background-color: var(--blood-color);
+      border-radius: 50% 50% 45% 50%;
+      transform: rotate(20deg);
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+      animation: bloodFall 7s ease-in-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    .blood-splatter {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      background-color: var(--blood-color);
+      border-radius: 40% 60% 60% 20%;
+      transform: rotate(0deg);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 101;
+      animation: splatter 4s ease-in-out forwards;
+    }
+    
+    @keyframes splatter {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+      10% {
+        opacity: 0.9;
+        transform: scale(1.2) rotate(20deg);
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1) rotate(45deg);
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #d42222;
+    }
+
+    .skeleton-loading {
+        background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-glow {
+      text-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color), 0 0 15px var(--accent-color);
+      transition: text-shadow 0.3s ease-in-out;
+    }
+    .logo-glow:hover {
+      text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color), 0 0 30px var(--accent-color);
+    }
+
+    @keyframes pulse-once {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse-once {
+      animation: pulse-once 0.5s ease-in-out;
+    }
+    
+    /* Recommendation card styling */
+    .rec-card {
+      background: rgba(40, 40, 40, 0.5);
+      border: 1px solid #444;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    
+    .rec-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(121, 20, 20, 0.3);
+      border-color: var(--accent-color);
+    }
+    
+    .rec-card-content {
+      padding: 10px;
+    }
+    
+    .rec-card-title {
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    
+    .rec-card-genre {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    
+    .rec-card-buy {
+      font-size: 0.7rem;
+      color: #6699cc;
+      text-decoration: underline;
+      margin-top: 4px;
+      display: inline-block;
+    }
+    
+    /* NEW STYLES for vertical layout */
+    /* Sidebar section styling */
+    .sidebar-section {
+      position: relative;
+    }
+
+    .sidebar-section:after {
+      content: '';
+      display: block;
+      width: 100%;
+      margin: 1rem 0;
+    }
+
+    /* Scrollable sections with fixed heights */
+    .sidebar-section .max-h-60 {
+      max-height: 15rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-color) var(--bg-color);
+    }
+
+    /* Smoother transitions for blood dividers */
+    .border-red-900 {
+      box-shadow: 0 0 8px rgba(127, 29, 29, 0.5);
+      transition: opacity 0.3s ease;
+    }
+
+    .side-panel:hover .border-red-900 {
+      opacity: 0.8;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .side-panel {
+        width: 100%;
+        max-height: 200px;
+      }
+      
+      .chat-window {
+        height: 60vh;
+      }
+    }
+    /* Centering the page */
+    .centered-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem; /* Increased padding */
+    }
+  </style>
+</head>
+<body>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none" style="background-image: radial-gradient(circle at center, rgba(185, 28, 28, 0.1) 0%, rgba(10, 10, 10, 0.8) 70%);"></div>
+
+    <div class="centered-container mx-auto">
+        <header class="w-full flex justify-between items-center p-4">
+            <div class="flex items-center space-x-4">
+                <h1 class="nosifer text-4xl text-white logo-glow">Horror Oracle</h1>
+                <div class="hidden md:flex space-x-3">
+                    <button id="news-btn" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Horror News</button>
+                    <button id="toggle-releases" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Recent Releases</button>
+                    <button id="forum-btn" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Horror Forum</button>
+                </div>
+            </div>
+            <div class="md:flex hidden items-center space-x-4">
+                <span id="user-status" class="text-sm text-gray-400">Not signed in</span>
+                <button id="google-login-btn" class="px-4 py-2 text-sm bg-gray-800 text-gray-400 rounded-full cursor-not-allowed" disabled>Login Disabled</button>
+                <div class="w-8 h-8 rounded-full bg-red-800 flex items-center justify-center text-white text-xs font-bold">HO</div>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="side-panel hidden md:flex flex-col">
+                <div class="sidebar-section mb-6">
+                    <h2 class="side-panel-title">Recommendations</h2>
+                    
+                    <div class="bg-gradient-to-r from-red-900 to-black p-3 rounded-lg mb-4 border border-red-800">
+                        <h2 class="text-center text-xl font-bold text-white mb-2">NOW IN THEATERS</h2>
+                        <div class="flex flex-col space-y-2">
+                            <div class="flex items-center bg-black bg-opacity-50 p-2 rounded">
+                                <img src="https://placehold.co/40x60/300/f88?text=NEW" class="mr-2 rounded">
+                                <div>
+                                    <div class="text-white text-sm font-bold">A Quiet Place: Day One</div>
+                                    <div class="text-gray-400 text-xs">In theaters now</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center bg-black bg-opacity-50 p-2 rounded">
+                                <img src="https://placehold.co/40x60/300/f88?text=NEW" class="mr-2 rounded">
+                                <div>
+                                    <div class="text-white text-sm font-bold">The Watchers</div>
+                                    <div class="text-gray-400 text-xs">In theaters now</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center bg-black bg-opacity-50 p-2 rounded">
+                                <img src="https://placehold.co/40x60/300/f88?text=NEW" class="mr-2 rounded">
+                                <div>
+                                    <div class="text-white text-sm font-bold">MaXXXine</div>
+                                    <div class="text-gray-400 text-xs">Coming this Friday</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="side-panel-title">Similar Movies</h3>
+                    <div id="recommendations-container" class="space-y-4 max-h-60 overflow-y-auto">
+                        <div class="flex items-center justify-center p-4">
+                            <p class="text-gray-400 text-sm">Search for a horror movie to see recommendations</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-red-900 my-4 opacity-50"></div>
+                
+                <div class="sidebar-section mb-6">
+                    <h2 class="side-panel-title">Where to Watch</h2>
+                    <div id="streaming-container" class="space-y-4 max-h-60 overflow-y-auto">
+                        <p class="text-sm text-center text-gray-400 mb-4">Search for a movie to see streaming options</p>
+                        
+                        <div class="streaming-result hidden">
+                            <div class="movie-title-streaming text-white font-bold mb-2"></div>
+                            
+                            <div class="streaming-platforms mb-4">
+                                <div class="text-sm text-gray-400 mb-2">Available on:</div>
+                                <div class="streaming-tags">
+                                    <span class="streaming-tag streaming-netflix">Netflix</span>
+                                    <span class="streaming-tag streaming-hbo">HBO Max</span>
+                                </div>
+                            </div>
+                            
+                            <div class="rental-options">
+                                <div class="text-sm text-gray-400 mb-2">Rent/Buy:</div>
+                                <div class="flex flex-col space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span>Amazon</span>
+                                        <span class="text-green-500">$5.99</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>Apple TV</span>
+                                        <span class="text-green-500">$4.99</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>Google Play</span>
+                                        <span class="text-green-500">$5.99</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="chat-window">
+                <div id="chat-history" class="chat-history">
+                    <div class="bot-bubble bg-gray-800 text-sm">
+                        <p class="mb-2 text-gray-400 font-bold">Horror Oracle</p>
+                        <p class="text-white">Greetings, mortal. I am the Horror Oracle. Unearth your deepest fears and most terrifying tales. What dark knowledge do you seek today?</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" placeholder="Type a movie, director, or subgenre..." class="flex-1 px-4 py-3 rounded-full bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200">
+                    <button id="send-btn" class="px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+            </main>
+
+            <aside class="side-panel hidden md:flex flex-col">
+                <div class="flex-grow">
+                  <h2 class="side-panel-title">My List</h2>
+                  <ul id="my-list-container" class="space-y-2 text-sm text-gray-400">
+                      <li>Your list is empty.</li>
+                  </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <h2 class="side-panel-title">Horror News</h2>
+                    <div id="news-container">
+                        <div class="news-container">
+                            <div class="news-title">New 'Alien' Series Begins Production</div>
+                            <div class="news-date">September 3, 2025</div>
+                            <div class="news-excerpt">FX's highly anticipated Alien series has officially begun production in Thailand, with Fede Ãlvarez directing...</div>
+                            <a href="#" class="news-link">Read More</a>
+                        </div>
+                        <div class="news-container">
+                            <div class="news-title">'The Conjuring 4' Announces Cast</div>
+                            <div class="news-date">September 2, 2025</div>
+                            <div class="news-excerpt">Warner Bros has announced the full cast for the fourth installment in The Conjuring franchise...</div>
+                            <a href="#" class="news-link">Read More</a>
+                        </div>
+                        <div class="news-container">
+                            <div class="news-title">'Terrifier 3' Breaks Box Office Records</div>
+                            <div class="news-date">September 1, 2025</div>
+                            <div class="news-excerpt">Art the Clown's latest rampage has slashed through box office expectations...</div>
+                            <a href="#" class="news-link">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-red-900 my-4 opacity-50"></div>
+                
+                <div class="sidebar-section">
+                    <h2 class="side-panel-title">Horror Forum</h2>
+                    <div id="forum-container" class="space-y-4 max-h-60 overflow-y-auto">
+                        <p class="text-sm text-gray-400 mb-2 text-center">Join the conversation about horror movies!</p>
+                        
+                        <div class="forum-preview">
+                            <div class="forum-header">
+                                <span>Posted by BloodSplatter88</span>
+                                <span>2h ago</span>
+                            </div>
+                            <div class="forum-topic">Was Midsommar actually scary?</div>
+                            <div class="forum-preview-text">I just watched it and I didn't find it scary at all. More disturbing than anything...</div>
+                            <div class="forum-stats">
+                                <span>24 comments</span>
+                                <span>17 likes</span>
+                            </div>
+                        </div>
+                        
+                        <div class="forum-preview">
+                            <div class="forum-header">
+                                <span>Posted by DreamMaster</span>
+                                <span>5h ago</span>
+                            </div>
+                            <div class="forum-topic">Ranking all the Friday the 13th movies</div>
+                            <div class="forum-preview-text">After rewatching the entire series, here's my ranking from worst to best...</div>
+                            <div class="forum-stats">
+                                <span>52 comments</span>
+                                <span>38 likes</span>
+                            </div>
+                        </div>
+                        
+                        <div class="forum-preview">
+                            <div class="forum-header">
+                                <span>Posted by ScareMaster5000</span>
+                                <span>12h ago</span>
+                            </div>
+                            <div class="forum-topic">Underrated 80s horror gems?</div>
+                            <div class="forum-preview-text">Looking for some lesser-known 80s horror movies to watch this weekend...</div>
+                            <div class="forum-stats">
+                                <span>31 comments</span>
+                                <span>22 likes</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full bg-red-800 text-white py-2 rounded-lg mt-4 hover:bg-red-700 transition-colors">View All Topics</button>
+                    </div>
+                </div>
+                
+                <button class="info-btn w-full px-4 py-2 bg-black text-white text-center rounded-full font-bold mt-4">
+                    About the Oracle
+                </button>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+    // DOM Elements
+    const chatHistory = document.getElementById('chat-history');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const myListComponent = document.getElementById('my-list-container');
+    const recommendationsComponent = document.getElementById('recommendations-container');
+    const toggleReleasesBtn = document.getElementById('toggle-releases');
+    const newsBtn = document.getElementById('news-btn');
+    const forumBtn = document.getElementById('forum-btn');
+
+    // Global variables
+    let currentMovieTitle = null;
+
+    // --- LOCAL STORAGE FUNCTIONS (for "My List") ---
+    const MY_LIST_KEY = 'horrorOracleMyList';
+
+    function saveMyList(list) {
+        try {
+            localStorage.setItem(MY_LIST_KEY, JSON.stringify(list));
+        } catch (e) {
+            console.error("Error saving to local storage:", e);
+        }
+    }
+
+    function loadMyList() {
+        try {
+            const list = JSON.parse(localStorage.getItem(MY_LIST_KEY)) || [];
+            updateMyListUI(list);
+            return list;
+        } catch (e) {
+            console.error("Error loading from local storage:", e);
+            return [];
+        }
+    }
+
+    function addToMyList(movieTitle) {
+        let list = loadMyList();
+        if (!list.includes(movieTitle)) {
+            list.push(movieTitle);
+            saveMyList(list);
+            updateMyListUI(list);
+        }
+    }
+
+    function removeFromMyList(movieTitle) {
+        let list = loadMyList();
+        const updatedList = list.filter(item => item !== movieTitle);
+        saveMyList(updatedList);
+        updateMyListUI(updatedList);
+    }
+
+    function updateMyListUI(list) {
+        myListComponent.innerHTML = '';
+        
+        if (list.length === 0) {
+            myListComponent.innerHTML = '<li class="text-center">Your list is empty.</li>';
+            return;
+        }
+        
+        list.forEach(title => {
+            const listItem = document.createElement('li');
+            listItem.className = "flex items-center justify-between p-2 rounded-lg bg-gray-800 mb-2 hover:bg-gray-700 transition-colors";
+            listItem.innerHTML = `
+                <span class="truncate">${title}</span>
+                <div class="flex items-center space-x-2">
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(title)}+movie" target="_blank" class="text-xs text-blue-400 hover:underline">Amazon</a>
+                    <a href="https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(title)}+movie" target="_blank" class="text-xs text-green-400 hover:underline">eBay</a>
+                    <button class="delete-btn text-red-500 hover:text-red-300 transition-colors" data-movie-title="${title}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            myListComponent.appendChild(listItem);
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const title = e.currentTarget.dataset.movieTitle;
+                removeFromMyList(title);
+            });
+        });
+        
+        // Visual indication when a new movie is added
+        myListComponent.classList.add('pulse-once');
+        setTimeout(() => {
+            myListComponent.classList.remove('pulse-once');
+        }, 500);
+    }
+
+    // Auto-scroll chat to bottom when new messages are added
+    function appendMessage(sender, text, movieTitle = null, amazonLink = null) {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble text-sm ${sender === 'user' ? 'user-bubble' : 'bot-bubble'}`;
+        
+        if (sender === 'bot') {
+            bubble.innerHTML = `<p class="mb-2 font-bold text-gray-400">Horror Oracle</p><p class="text-white">${text}</p>`;
+            
+            // Add "Add to My List" button for bot messages that contain a movie title
+            if (movieTitle) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = "mt-2 flex justify-between";
+                
+                // Add to My List button
+                const addButton = document.createElement('button');
+                addButton.className = "px-3 py-1 text-xs bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors pulse-once";
+                addButton.textContent = `+ Add "${movieTitle}" to My List`;
+                addButton.onclick = () => addToMyList(movieTitle);
+                
+                // Buy Now button if we have an Amazon link
+                if (amazonLink) {
+                    const buyButton = document.createElement('a');
+                    buyButton.href = amazonLink;
+                    buyButton.target = "_blank";
+                    buyButton.className = "px-3 py-1 text-xs bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors";
+                    buyButton.textContent = `Buy "${movieTitle}" Now`;
+                    buttonContainer.appendChild(buyButton);
+                }
+                
+                buttonContainer.appendChild(addButton);
+                bubble.appendChild(buttonContainer);
+                
+                // When we get a movie response, update streaming info
+                setTimeout(() => {
+                    // Update streaming tab with movie info
+                    updateStreamingInfo(movieTitle);
+                }, 500);
+            }
+        } else {
+            bubble.innerHTML = `<p class="text-white">${text}</p>`;
+        }
+        
+        chatHistory.appendChild(bubble);
+        
+        // Auto-scroll to the bottom of the chat
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+    
+    // Update streaming info
+    function updateStreamingInfo(movieTitle) {
+        const streamingContainer = document.getElementById('streaming-container');
+        const streamingResult = streamingContainer.querySelector('.streaming-result');
+        const movieTitleElement = streamingResult.querySelector('.movie-title-streaming');
+        
+        // Show the result container
+        streamingResult.classList.remove('hidden');
+        
+        // Set the movie title
+        movieTitleElement.textContent = movieTitle;
+        
+        // In a real implementation, we would fetch actual data here
+        // For now, we'll use randomized mock data
+        const streamingPlatforms = ['Netflix', 'Prime', 'Hulu', 'Shudder', 'HBO Max'];
+        const availablePlatforms = [];
+        
+        // Randomly select 0-3 platforms
+        const platformCount = Math.floor(Math.random() * 4);
+        for (let i = 0; i < platformCount; i++) {
+            const randomIndex = Math.floor(Math.random() * streamingPlatforms.length);
+            const platform = streamingPlatforms[randomIndex];
+            if (!availablePlatforms.includes(platform)) {
+                availablePlatforms.push(platform);
+            }
+        }
+        
+        // Update the UI
+        const tagsContainer = streamingResult.querySelector('.streaming-tags');
+        tagsContainer.innerHTML = '';
+        
+        if (availablePlatforms.length === 0) {
+            tagsContainer.innerHTML = '<span class="text-gray-400">Not currently streaming</span>';
+        } else {
+            availablePlatforms.forEach(platform => {
+                const className = `streaming-tag streaming-${platform.toLowerCase().replace(' ', '')}`;
+                const tag = document.createElement('span');
+                tag.className = className;
+                tag.textContent = platform;
+                tagsContainer.appendChild(tag);
+            });
+        }
+        
+        // Update rental prices (random)
+        const rentalOptions = streamingResult.querySelector('.rental-options');
+        const rentalsList = rentalOptions.querySelector('.flex-col');
+        rentalsList.innerHTML = '';
+        
+        const rentalPlatforms = [
+            { name: 'Amazon', price: (Math.floor(Math.random() * 3) + 3) + 0.99 },
+            { name: 'Apple TV', price: (Math.floor(Math.random() * 3) + 3) + 0.99 },
+            { name: 'Google Play', price: (Math.floor(Math.random() * 3) + 3) + 0.99 }
+        ];
+        
+        rentalPlatforms.forEach(platform => {
+            const item = document.createElement('div');
+            item.className = 'flex justify-between items-center';
+            item.innerHTML = `
+                <span>${platform.name}</span>
+                <span class="text-green-500">$${platform.price.toFixed(2)}</span>
+            `;
+            rentalsList.appendChild(item);
+        });
+    }
+    
+    // Function to handle the chat input and send to backend
+    async function sendMessage() {
+        const query = userInput.value.trim();
+        if (query === '') return;
+        
+        appendMessage('user', query);
+        userInput.value = '';
+        
+        // Show a loading state in chat
+        const loadingBubble = document.createElement('div');
+        loadingBubble.className = "bot-bubble text-sm skeleton-loading rounded-full w-32 h-12";
+        loadingBubble.id = "loading-bubble";
+        chatHistory.appendChild(loadingBubble);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        
+        // Show loading state in recommendations
+        recommendationsComponent.innerHTML = `
+            <h2 class="side-panel-title">Loading...</h2>
+            <div class="flex flex-col space-y-4">
+                <div class="skeleton-loading w-full h-20 rounded-lg"></div>
+                <div class="skeleton-loading w-full h-20 rounded-lg"></div>
+                <div class="skeleton-loading w-full h-20 rounded-lg"></div>
+            </div>
+        `;
+
+        try {
+            // Add a random parameter to prevent caching
+            const timestamp = new Date().getTime();
+            const response = await fetch(`http://localhost:5000/ask-oracle?nocache=${timestamp}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                },
+                body: JSON.stringify({ 
+                    query: query,
+                    timestamp: timestamp 
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Remove loading bubble
+            const loadingElement = document.getElementById("loading-bubble");
+            if (loadingElement) {
+                chatHistory.removeChild(loadingElement);
+            }
+            
+            // Format and display response
+            let fullResponse = data.summary || '';
+            if (data.interesting_fact) {
+                fullResponse += `\n\n**Interesting Fact:** ${data.interesting_fact}`;
+            }
+            
+            // Store current movie title
+            currentMovieTitle = data.movie_title;
+            
+            // Display message
+            appendMessage('bot', fullResponse, data.movie_title, data.amazon_link);
+            
+            // If a movie was found, add some horror effects
+            if (data.movie_title) {
+                // Automatically add to My List
+                addToMyList(data.movie_title);
+                
+                // Trigger horror effects
+                triggerHorrorEffects();
+            }
+            
+            // Update recommendations with fresh data
+            updateRecommendationsUI(data.recommendations || []);
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            
+            // Remove loading bubble
+            const loadingElement = document.getElementById("loading-bubble");
+            if (loadingElement) {
+                chatHistory.removeChild(loadingElement);
+            }
+            
+            // Show error message
+            appendMessage('bot', `My powers are failing me. The Oracle is unable to see that information. Please try another query.`);
+            
+            // Clear recommendations on error
+            recommendationsComponent.innerHTML = `
+                <h2 class="side-panel-title">Similar Movies</h2>
+                <div class="text-gray-400 text-sm text-center p-4">No recommendations available</div>
+            `;
+        }
+    }
+    
+    function updateRecommendationsUI(recommendations) {
+        // Get the recommendations container directly
+        const recommendationsContainer = document.getElementById('recommendations-container');
+        
+        // Always clear existing recommendations first
+        recommendationsContainer.innerHTML = '';
+        
+        // If no recommendations, show message
+        if (!recommendations || recommendations.length === 0) {
+            const noRecsMessage = document.createElement('div');
+            noRecsMessage.className = "text-gray-400 text-sm text-center p-4";
+            noRecsMessage.textContent = "No similar movies found";
+            recommendationsContainer.appendChild(noRecsMessage);
+            return;
+        }
+        
+        // Create a container for recommendation cards
+        const recCardsContainer = document.createElement('div');
+        recCardsContainer.className = "flex flex-col space-y-4 mt-4";
+        
+        // Add each recommendation with a delay for visual effect
+        recommendations.forEach((rec, index) => {
+            setTimeout(() => {
+                const card = createRecommendationCard(rec);
+                recCardsContainer.appendChild(card);
+                card.style.animation = "fadeIn 0.3s forwards";
+            }, index * 100);
+        });
+        
+        recommendationsContainer.appendChild(recCardsContainer);
+    }
+    
+    // Create a recommendation card element
+    function createRecommendationCard(recommendation) {
+        const card = document.createElement('div');
+        card.className = "rec-card opacity-0";
+        card.style.animation = "fadeIn 0.3s forwards";
+        
+        // Handle click on the card
+        card.addEventListener('click', () => {
+            userInput.value = recommendation.title;
+            sendMessage();
+        });
+        
+        // Create card content
+        card.innerHTML = `
+            <div class="flex items-center p-2">
+                <img src="${recommendation.poster_url || 'https://placehold.co/60x90/1c1c1c/f2f2f2?text=?'}" 
+                     alt="${recommendation.title} Poster" 
+                     class="w-12 h-18 object-cover rounded-md mr-3">
+                <div class="rec-card-content">
+                    <div class="rec-card-title">${recommendation.title} (${recommendation.year || 'N/A'})</div>
+                    <div class="rec-card-genre">${recommendation.genres ? recommendation.genres.join(', ') : 'Horror'}</div>
+                    <a href="${recommendation.amazon_link || `https://www.amazon.com/s?k=${encodeURIComponent(recommendation.title)}+movie`}" 
+                       target="_blank" 
+                       class="rec-card-buy" 
+                       onclick="event.stopPropagation();">
+                       Buy on Amazon
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    // Function to handle fetching recent releases
+    async function toggleReleases() {
+        try {
+            // Show loading message
+            appendMessage('bot', "Conjuring a list of recent releases from the beyond...");
+            
+            // Get current timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            const response = await fetch(`http://localhost:5000/recent-releases?t=${timestamp}`, {
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.releases && data.releases.length > 0) {
+                // Format releases as a list
+                let releasesText = "🔮 **Recent Horror Releases** 🔮\n\n";
+                data.releases.forEach(r => {
+                    const releaseDate = new Date(r.release_date).toLocaleDateString();
+                    releasesText += `• **${r.title}** (${releaseDate})\n`;
+                });
+                
+                // Add random horror tagline
+                const taglines = [
+                    "Fresh blood for your watchlist...",
+                    "New nightmares await...",
+                    "The newest terrors to haunt your dreams...",
+                    "Fresh fear for your collection...",
+                    "The latest offerings to the horror gods..."
+                ];
+                const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+                releasesText += `\n${randomTagline}`;
+                
+                appendMessage('bot', releasesText);
+                triggerHorrorEffects();
+            } else {
+                appendMessage('bot', 'The Oracle cannot foresee recent releases at this time.');
+            }
+        } catch (error) {
+            console.error('Error fetching recent releases:', error);
+            appendMessage('bot', 'A dark force is interfering. The Oracle cannot see recent releases.');
+        }
+    }
+    
+    // News button handler
+    function showHorrorNews() {
+        appendMessage('bot', "🩸 **Latest Horror News** 🩸\n\n• **New 'Alien' Series Begins Production** - FX's highly anticipated Alien series has officially begun production in Thailand.\n\n• **'The Conjuring 4' Announces Cast** - Warner Bros has revealed the full cast for the next installment.\n\n• **'Terrifier 3' Breaks Box Office Records** - Art the Clown's latest rampage has slashed through expectations.\n\nThe darkness continues to spread...");
+        createBloodSplatter();
+    }
+    
+    // Forum button handler - UPDATED to not switch tabs
+    function showForumPreview() {
+        appendMessage('bot', "🔮 **Horror Forum Highlights** 🔮\n\n• **Hot Topic: Was Midsommar actually scary?** - 24 comments\n\n• **Ranking all the Friday the 13th movies** - 52 comments\n\n• **Underrated 80s horror gems?** - 31 comments\n\nJoin the conversation with fellow horror enthusiasts...");
+        
+        // Create blood splatter effect
+        createBloodSplatter();
+    }
+    
+    // Horror effects
+    function createBloodDrop() {
+        const drop = document.createElement('div');
+        drop.className = 'blood-drop';
+        
+        // Random position, size and delay
+        const size = Math.floor(Math.random() * 10) + 8;  // Between 8-18px
+        const width = size * (0.8 + Math.random() * 0.4);  // Slight variation in width
+        drop.style.width = `${width}px`;
+        drop.style.height = `${size}px`;
+        drop.style.left = `${Math.random() * 100}vw`;
+        drop.style.opacity = (Math.random() * 0.5) + 0.5;
+        
+        // Random rotation
+        const rotation = Math.random() * 40 - 20;  // -20 to +20 degrees
+        drop.style.transform = `rotate(${rotation}deg)`;
+        
+        document.body.appendChild(drop);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            drop.remove();
+        }, 7000);
+    }
+    
+    // Create blood splatter effect
+    function createBloodSplatter() {
+        const splatter = document.createElement('div');
+        splatter.className = 'blood-splatter';
+        
+        // Random position
+        splatter.style.left = `${Math.random() * 80 + 10}vw`;  // 10-90% of viewport width
+        splatter.style.top = `${Math.random() * 80 + 10}vh`;   // 10-90% of viewport height
+        
+        // Random size (30-60px)
+        const size = Math.floor(Math.random() * 30) + 30;
+        splatter.style.width = `${size}px`;
+        splatter.style.height = `${size}px`;
+        
+        // Random rotation (0-360 degrees)
+        const rotation = Math.floor(Math.random() * 360);
+        splatter.style.transform = `rotate(${rotation}deg)`;
+        
+        document.body.appendChild(splatter);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            splatter.remove();
+        }, 4000);
+    }
+    
+    // Screen flicker effect
+    function triggerFlicker() {
+        document.body.classList.add('flicker');
+        setTimeout(() => {
+            document.body.classList.remove('flicker');
+        }, 100);
+    }
+    
+    // Create spooky effects when a horror movie is found
+    function triggerHorrorEffects() {
+        // Blood drops
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => createBloodDrop(), i * 200);
+        }
+        
+        // Blood splatters
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => createBloodSplatter(), i * 500);
+        }
+        
+        // Screen flicker
+        triggerFlicker();
+        setTimeout(() => triggerFlicker(), 300);
+        setTimeout(() => triggerFlicker(), 1200);
+    }
+    
+    // Process markdown text
+    function processMarkdown(text) {
+        // Bold text
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Italic text
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Line breaks
+        text = text.replace(/\n/g, '<br>');
+        
+        return text;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    toggleReleasesBtn.addEventListener('click', toggleReleases);
+    newsBtn.addEventListener('click', showHorrorNews);
+    forumBtn.addEventListener('click', showForumPreview);
+
+    // Load initial list on page load
+    loadMyList();
+    
+    // Initial effect
+    setTimeout(() => {
+        createBloodDrop();
+        setTimeout(() => createBloodDrop(), 300);
+        setTimeout(() => createBloodSplatter(), 800);
+    }, 1000);
+    </script>
+</body>
+</html>
