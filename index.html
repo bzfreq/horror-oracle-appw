@@ -2,174 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Horror Oracle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      --bg-color: #0a0a0a;
-      --text-color: #e0e0e0;
-      --accent-color: #b91c1c;
-      --secondary-color: #7d1414;
-      --input-bg: #1a1a1a;
-      --chat-bg: #111111;
-      --user-bubble: #333;
-      --bot-bubble: #222;
-      --blood-color: #7d0b0b;
+      --bg-color: #0d0d0d;
+      --text-color: #f2f2f2;
+      --blood-color: #8b0000;
+      --accent-color: #ff0000;
     }
-    /* --- all your CSS unchanged --- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 1rem;
+      background: var(--blood-color);
+      color: white;
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 800px;
+      margin: 1rem auto;
+      padding: 1rem;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid var(--blood-color);
+      border-radius: 8px;
+      min-height: 500px;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 1rem;
+    }
+    .message {
+      margin: .5rem 0;
+      padding: .5rem;
+      border-radius: 6px;
+    }
+    .user { background: #222; text-align: right; }
+    .oracle { background: #330000; }
+    #input-container {
+      display: flex;
+      margin-top: 1rem;
+    }
+    #user-input {
+      flex: 1;
+      padding: .5rem;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #111;
+      color: var(--text-color);
+    }
+    button {
+      margin-left: .5rem;
+      padding: .5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--blood-color);
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: var(--accent-color); }
+    /* Blood drop & splatter */
+    .blood-drop, .blood-splatter {
+      position: absolute;
+      background: var(--blood-color);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .blood-drop {
+      width: 8px;
+      height: 8px;
+      animation: drop 2s linear forwards;
+    }
+    @keyframes drop {
+      0% { top: -10px; opacity: 1; }
+      100% { top: 100vh; opacity: 0; }
+    }
+    .blood-splatter {
+      width: 30px;
+      height: 30px;
+      animation: splatter 1s ease-out forwards;
+    }
+    @keyframes splatter {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    .flicker {
+      animation: flickerAnim 0.2s infinite;
+    }
+    @keyframes flickerAnim {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
   </style>
 </head>
 <body>
-    <div class="fixed top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none" style="background-image: radial-gradient(circle at center, rgba(185, 28, 28, 0.1) 0%, rgba(10, 10, 10, 0.8) 70%);"></div>
-
-    <div class="centered-container mx-auto">
-        <header class="w-full flex justify-between items-center p-4">
-            <div class="flex items-center space-x-4">
-                <h1 class="nosifer text-4xl text-white logo-glow">Horror Oracle</h1>
-                <div class="hidden md:flex space-x-3">
-                    <button id="news-btn" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Horror News</button>
-                    <button id="toggle-releases" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Recent Releases</button>
-                    <button id="forum-btn" class="px-4 py-2 text-sm bg-gray-800 rounded-full border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors">Horror Forum</button>
-                </div>
-            </div>
-        </header>
-
-        <div class="container">
-            <!-- left panel + chat + right panel all your same HTML -->
-        </div>
+  <header>🔮 Horror Oracle 🔮</header>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <div id="input-container">
+      <input id="user-input" placeholder="Ask the Oracle..." />
+      <button id="send-btn">Send</button>
     </div>
+    <div style="margin-top:1rem;">
+      <button id="toggle-releases">Recent Releases</button>
+      <button id="news-btn">News</button>
+      <button id="forum-btn">Forum</button>
+    </div>
+  </div>
 
-    <script>
-    // DOM setup + helper functions unchanged...
+  <script>
+    const messagesDiv = document.getElementById("messages");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const toggleReleasesBtn = document.getElementById("toggle-releases");
+    const newsBtn = document.getElementById("news-btn");
+    const forumBtn = document.getElementById("forum-btn");
 
-    // sendMessage FIXED
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.innerHTML = text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
     async function sendMessage() {
-        const query = userInput.value.trim();
-        if (query === '') return;
-
-        appendMessage('user', query);
-        userInput.value = '';
-
-        const loadingBubble = document.createElement('div');
-        loadingBubble.className = "bot-bubble text-sm skeleton-loading rounded-full w-32 h-12";
-        loadingBubble.id = "loading-bubble";
-        chatHistory.appendChild(loadingBubble);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        const timestamp = new Date().getTime();
-        try {
-            const response = await fetch(`/ask-oracle?nocache=${timestamp}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                },
-                body: JSON.stringify({ query, timestamp })
-            });
-
-            if (!response.ok) throw new Error(`Network error: ${response.status}`);
-            const data = await response.json();
-
-            document.getElementById("loading-bubble")?.remove();
-            let fullResponse = data.summary || '';
-            if (data.interesting_fact) {
-                fullResponse += `<br><br><strong>Interesting Fact:</strong> ${data.interesting_fact}`;
-            }
-            currentMovieTitle = data.movie_title;
-            appendMessage('bot', fullResponse, data.movie_title, data.amazon_link);
-
-        } catch (error) {
-            document.getElementById("loading-bubble")?.remove();
-            appendMessage('bot', "The Oracle cannot see that information right now.");
+      const query = userInput.value.trim();
+      if (!query) return;
+      addMessage(query, "user");
+      userInput.value = "";
+      try {
+        const response = await fetch("/ask-oracle", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        let oracleText = `<strong>${data.movie_title}</strong><br>${data.summary}<br><br>`;
+        if (data.recommendations) {
+          oracleText += "<em>Recommendations:</em><ul>";
+          data.recommendations.forEach(r => {
+            oracleText += `<li>${r.title} (${r.year})</li>`;
+          });
+          oracleText += "</ul>";
         }
+        addMessage(oracleText, "oracle");
+        triggerHorrorEffects();
+      } catch(err) {
+        addMessage("⚠️ Oracle error: " + err.message, "oracle");
+      }
     }
 
-    // toggleReleases FIXED
     async function toggleReleases() {
-        try {
-            appendMessage('bot', "Conjuring a list of recent releases...");
-            const timestamp = new Date().getTime();
-            const response = await fetch(`/recent-releases?t=${timestamp}`, {
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            });
-            if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
-            const data = await response.json();
-
-            if (data.releases?.length > 0) {
-                let releasesText = "🔮 <strong>Recent Horror Releases</strong> 🔮<br><br>";
-                data.releases.forEach(r => {
-                    const releaseDate = new Date(r.release_date).toLocaleDateString();
-                    releasesText += `• <strong>${r.title}</strong> (${releaseDate})<br>`;
-                });
-                appendMessage('bot', releasesText);
-            } else {
-                appendMessage('bot', "The Oracle cannot foresee releases right now.");
-            }
-        } catch (err) {
-            appendMessage('bot', "Dark forces block the release list...");
-        }
+      try {
+        const res = await fetch("/recent-releases");
+        const data = await res.json();
+        let html = "<em>Recent Releases:</em><ul>";
+        data.releases.forEach(r => { html += `<li>${r.title} (${r.release_date})</li>`; });
+        html += "</ul>";
+        addMessage(html, "oracle");
+      } catch {
+        addMessage("⚠️ Could not fetch releases.", "oracle");
+      }
     }
 
-    // all your other functions unchanged...
+    function showHorrorNews() { addMessage("📰 Horror news coming soon!", "oracle"); }
+    function showForumPreview() { addMessage("💀 Forum preview coming soon!", "oracle"); }
 
-    // Screen flicker effect
+    function createBloodDrop() {
+      const d = document.createElement("div");
+      d.classList.add("blood-drop");
+      d.style.left = Math.random()*100 + "vw";
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 2000);
+    }
+
+    function createBloodSplatter() {
+      const s = document.createElement("div");
+      s.classList.add("blood-splatter");
+      s.style.left = Math.random()*100 + "vw";
+      s.style.top = Math.random()*100 + "vh";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1000);
+    }
+
     function triggerFlicker() {
-        document.body.classList.add('flicker');
-        setTimeout(() => {
-            document.body.classList.remove('flicker');
-        }, 100);
+      document.body.classList.add("flicker");
+      setTimeout(() => document.body.classList.remove("flicker"), 100);
     }
 
-    // Create spooky effects when a horror movie is found
     function triggerHorrorEffects() {
-        for (let i = 0; i < 10; i++) {
-            setTimeout(() => createBloodDrop(), i * 200);
-        }
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => createBloodSplatter(), i * 500);
-        }
-        triggerFlicker();
-        setTimeout(() => triggerFlicker(), 300);
-        setTimeout(() => triggerFlicker(), 1200);
+      for (let i=0;i<10;i++) setTimeout(() => createBloodDrop(), i*200);
+      for (let i=0;i<3;i++) setTimeout(() => createBloodSplatter(), i*500);
+      triggerFlicker();
+      setTimeout(triggerFlicker,300);
+      setTimeout(triggerFlicker,1200);
     }
 
-    // Process markdown text
-    function processMarkdown(text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        text = text.replace(/\n/g, '<br>');
-        return text;
-    }
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keydown", e => { if (e.key==="Enter") sendMessage(); });
+    toggleReleasesBtn.addEventListener("click", toggleReleases);
+    newsBtn.addEventListener("click", showHorrorNews);
+    forumBtn.addEventListener("click", showForumPreview);
 
-    // Event listeners
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    toggleReleasesBtn.addEventListener('click', toggleReleases);
-    newsBtn.addEventListener('click', showHorrorNews);
-    forumBtn.addEventListener('click', showForumPreview);
-
-    // Load initial list on page load
-    loadMyList();
-
-    // Initial effect
     setTimeout(() => {
-        createBloodDrop();
-        setTimeout(() => createBloodDrop(), 300);
-        setTimeout(() => createBloodSplatter(), 800);
-    }, 1000);
-    </script>
+      createBloodDrop();
+      setTimeout(createBloodDrop,300);
+      setTimeout(createBloodSplatter,800);
+    },1000);
+  </script>
 </body>
 </html>
