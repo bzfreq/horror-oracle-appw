@@ -12,19 +12,17 @@ import random
 import time
 
 # ----- CONFIG -----
+# Try to load .env file but don't worry if it fails
 try:
     load_dotenv()
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    PINECONE_API_KEY = os.getenv("PINECONE_API_KEY") 
-    OMDB_API_KEY = os.getenv("OMDB_API_KEY")
-    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 except Exception as e:
-    print(f"Error loading .env file: {e}")
-    OPENAI_API_KEY = None
-    PINECONE_API_KEY = None
-    OMDB_API_KEY = None
-    TMDB_API_KEY = None
+    print(f"Note: .env file not loaded: {e}")
 
+# Get variables from environment regardless of .env file
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY") 
+OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 INDEX_NAME = "horror-movies"
 EMBED_MODEL = "text-embedding-3-small"
 
