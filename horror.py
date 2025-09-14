@@ -429,4 +429,4 @@ if __name__ == "__main__":
     print(f"🧠 OpenAI API: {'CONNECTED' if client is not None else 'DISABLED'}")
     print(f"🎬 OMDb API: {'CONNECTED' if OMDB_API_KEY else 'DISABLED'}")
     print(f"🎥 TMDb API: {'CONNECTED' if TMDB_API_KEY else 'DISABLED'}")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+  
