@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 import json
 import requests
@@ -12,12 +11,6 @@ import random
 import time
 
 # ----- CONFIG -----
-# Try to load .env file but don't worry if it fails
-try:
-    load_dotenv()
-except Exception as e:
-    print(f"Note: .env file not loaded: {e}")
-
 # Get variables from environment regardless of .env file
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY") 
