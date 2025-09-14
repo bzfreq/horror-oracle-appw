@@ -422,6 +422,20 @@ def recent_releases():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+# Add debug route to test API connectivity
+@app.route("/debug", methods=["GET"])
+def debug():
+    debug_info = {
+        "timestamp": time.time(),
+        "api_keys": {
+            "OPENAI_API_KEY": bool(OPENAI_API_KEY),
+            "PINECONE_API_KEY": bool(PINECONE_API_KEY),
+            "OMDB_API_KEY": bool(OMDB_API_KEY),
+            "TMDB_API_KEY": bool(TMDB_API_KEY)
+        }
+    }
+    return jsonify(debug_info)
+
 if __name__ == "__main__":
     check_api_keys()
     print("\n🔮 Horror Oracle starting (OPTIMIZED FOR SPEED)...")
@@ -429,4 +443,9 @@ if __name__ == "__main__":
     print(f"🧠 OpenAI API: {'CONNECTED' if client is not None else 'DISABLED'}")
     print(f"🎬 OMDb API: {'CONNECTED' if OMDB_API_KEY else 'DISABLED'}")
     print(f"🎥 TMDb API: {'CONNECTED' if TMDB_API_KEY else 'DISABLED'}")
-  
+    
+    # Get port from environment variable for Render compatibility
+    port = int(os.environ.get("PORT", 10000))
+    
+    # Bind to all interfaces (0.0.0.0) on the specified port
+    app.run(host="0.0.0.0", port=port)
