@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Horror Oracle</title>
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,6 +18,7 @@
       --bot-bubble: #222;
       --blood-color: #7d0b0b;
     }
+
     body {
       font-family: 'Roboto', sans-serif;
       background: var(--bg-color);
@@ -27,82 +28,179 @@
       flex-direction: column;
       background-image: linear-gradient(to bottom, #200122, #060107);
     }
-    .chat-window { background: var(--chat-bg); border: 1px solid #333; border-radius: 12px; }
-    .chat-history { flex: 1; padding: 1rem; overflow-y: auto; scroll-behavior: smooth; }
-    .chat-bubble { max-width: 80%; padding: 0.75rem; border-radius: 1rem; margin-bottom: 1rem; }
-    .user-bubble { background: var(--user-bubble); align-self: flex-end; margin-left: auto; }
-    .bot-bubble { background: var(--bot-bubble); align-self: flex-start; }
-    .recommendations-panel { background: #1a1a1a; border-left: 2px solid #b91c1c; padding: 1rem; }
-    .recommendation-bubble { background: #2a2a2a; border-radius: 0.5rem; padding: 0.5rem; margin-top: 0.25rem; }
-    .fact-bubble { display: inline-block; background: #7d0b0b; color: white; border-radius: 0.5rem; padding: 0.4rem 0.7rem; margin: 0.2rem; cursor: pointer; }
-    .poster { max-width: 200px; margin-top: 0.5rem; border-radius: 6px; }
-    .buy-link { display: block; margin-top: 0.5rem; color: #ff4747; font-weight: bold; text-decoration: underline; }
-    .blood-drop, .blood-splatter { position: fixed; background-color: var(--blood-color); pointer-events: none; z-index: 100; }
-    .flicker { animation: flicker 0.1s infinite alternate; }
-    @keyframes flicker { from {opacity: 1;} to {opacity: 0.7;} }
+
+    .creepster { font-family: 'Creepster', cursive; }
+    .nosifer { font-family: 'Nosifer', cursive; }
+
+    .container {
+      display: flex;
+      flex: 1;
+      padding: 1rem;
+      gap: 2rem;
+    }
+
+    .side-panel {
+      width: 250px;
+      background: rgba(17, 17, 17, 0.7);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+
+    .side-panel-title {
+      color: var(--accent-color);
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--chat-bg);
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .chat-history {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .chat-input-area {
+      padding: 1rem;
+      background: var(--chat-bg);
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .user-bubble {
+      background: var(--user-bubble);
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .bot-bubble {
+      background: var(--bot-bubble);
+      align-self: flex-start;
+    }
+
+    .rec-card {
+      background: rgba(40, 40, 40, 0.5);
+      border: 1px solid #444;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rec-card:hover {
+      border-color: var(--accent-color);
+    }
+
+    .rec-card img {
+      width: 40px;
+      height: 60px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .side-panel { width: 100%; max-height: 200px; }
+      .chat-window { height: 60vh; }
+    }
   </style>
 </head>
 <body>
-  <div class="flex flex-row w-full h-screen">
-    <div class="flex-1 flex flex-col">
-      <header class="w-full flex justify-between items-center p-4">
-        <h1 class="nosifer text-4xl text-white logo-glow">Horror Oracle</h1>
-      </header>
+  <div class="centered-container mx-auto">
+    <header class="w-full flex justify-between items-center p-4">
+      <h1 class="nosifer text-4xl text-white">Horror Oracle</h1>
+    </header>
 
-      <main class="chat-window flex flex-col flex-1">
+    <div class="container">
+      <!-- Recommendations Panel -->
+      <aside class="side-panel">
+        <h2 class="side-panel-title">Recommended Movies</h2>
+        <div id="recommendations-container">
+          <p class="text-gray-400 text-sm">Search for a movie to see recommendations</p>
+        </div>
+      </aside>
+
+      <!-- Chat Window -->
+      <main class="chat-window">
         <div id="chat-history" class="chat-history">
-          <div class="bot-bubble">
-            <p><strong>Horror Oracle:</strong> Greetings, mortal. Ask me of your nightmares…</p>
+          <div class="bot-bubble text-sm">
+            <p class="font-bold text-gray-400">Horror Oracle</p>
+            <p>Greetings, mortal. What dark knowledge do you seek today?</p>
           </div>
         </div>
-        <div class="chat-input-area flex p-3">
-          <input type="text" id="user-input" placeholder="Type a movie, director, or subgenre..."
-            class="flex-1 px-4 py-3 rounded-full bg-gray-800 text-white placeholder-gray-500">
-          <button id="send-btn" class="ml-2 px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700">Send</button>
+        <div class="chat-input-area">
+          <input type="text" id="user-input" placeholder="Type a movie, director, or subgenre..." class="flex-1 px-4 py-3 rounded-full bg-gray-800 text-white">
+          <button id="send-btn" class="px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700">Send</button>
         </div>
       </main>
     </div>
-
-    <!-- Side panel for Recommendations -->
-    <aside class="recommendations-panel w-64">
-      <h2 class="text-xl font-bold mb-2">💀 Recommended Movies</h2>
-      <div id="recommendations"></div>
-    </aside>
   </div>
 
   <script>
     const chatHistory = document.getElementById('chat-history');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
-    const recommendationsPanel = document.getElementById('recommendations');
+    const recContainer = document.getElementById('recommendations-container');
 
-    function appendMessage(sender, text, html = false) {
+    function appendMessage(sender, text, posterUrl=null, buyLink=null, fact=null) {
       const bubble = document.createElement('div');
       bubble.className = `chat-bubble ${sender === 'user' ? 'user-bubble' : 'bot-bubble'}`;
-      bubble.innerHTML = html ? text : `<p>${text}</p>`;
-      chatHistory.appendChild(bubble);
-      chatHistory.scrollTop = chatHistory.scrollHeight; // auto-scroll
-    }
+      bubble.innerHTML = `<p>${text}</p>`;
 
-    function appendRecommendationBubble(list) {
-      const bubble = document.createElement('div');
-      bubble.className = 'chat-bubble bot-bubble';
-      bubble.innerHTML = "<strong>Recommended Movies:</strong><ul>" + list.map(r => `<li>${r.title} (${r.year})</li>`).join('') + "</ul>";
-      chatHistory.appendChild(bubble);
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
+      if (posterUrl) {
+        const img = document.createElement('img');
+        img.src = posterUrl;
+        img.alt = "Movie Poster";
+        img.className = "mt-2 rounded";
+        bubble.appendChild(img);
+      }
 
-    function appendFactBubbles(facts) {
-      const bubble = document.createElement('div');
-      bubble.className = 'chat-bubble bot-bubble';
-      bubble.innerHTML = "<strong>Did you know?</strong><br>";
-      facts.forEach(fact => {
-        const span = document.createElement('span');
-        span.className = 'fact-bubble';
-        span.textContent = fact.label;
-        span.onclick = () => appendMessage('bot', fact.text);
-        bubble.appendChild(span);
-      });
+      if (buyLink) {
+        const link = document.createElement('a');
+        link.href = buyLink;
+        link.target = "_blank";
+        link.className = "block mt-2 text-blue-400 underline";
+        link.textContent = "Buy this movie";
+        bubble.appendChild(link);
+      }
+
+      if (fact) {
+        const factBtn = document.createElement('button');
+        factBtn.textContent = "Did you know?";
+        factBtn.className = "mt-2 px-3 py-1 text-xs bg-red-600 text-white rounded-full hover:bg-red-700";
+        factBtn.onclick = () => {
+          appendMessage('bot', fact);
+        };
+        bubble.appendChild(factBtn);
+      }
+
       chatHistory.appendChild(bubble);
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
@@ -114,82 +212,49 @@
       userInput.value = '';
 
       try {
-        const response = await fetch("/ask-oracle", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/ask-oracle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })
         });
+
         const data = await response.json();
+        appendMessage('bot', data.summary || "The Oracle is silent...", data.poster_url, data.amazon_link, data.interesting_fact);
 
-        // Build main oracle reply
-        let oracleText = `<strong>${data.movie_title || query}</strong>`;
-        if (data.year) oracleText += ` (${data.year})`;
-        if (data.director) oracleText += ` — Directed by ${data.director}`;
-        oracleText += `<br>${data.summary || "The Oracle sees nothing..."}`;
-
-        // Poster + buy link
-        if (data.poster_url) {
-          oracleText += `<br><img src="${data.poster_url}" alt="Poster" class="poster">`;
-          oracleText += `<a href="https://www.amazon.com/s?k=${encodeURIComponent(data.movie_title || query)}+dvd" target="_blank" class="buy-link">🛒 Buy this movie</a>`;
-        }
-
-        // Conversational hook
-        oracleText += `<br><em>Do you want to know more about this film?</em>`;
-
-        appendMessage('bot', oracleText, true);
-
-        // Recommendations separate
-        if (data.recommendations && data.recommendations.length) {
-          appendRecommendationBubble(data.recommendations);
-
-          // Update side panel
-          recommendationsPanel.innerHTML = "";
-          data.recommendations.forEach(r => {
-            const recDiv = document.createElement('div');
-            recDiv.className = 'recommendation-bubble';
-            recDiv.textContent = `${r.title} (${r.year})`;
-            recommendationsPanel.appendChild(recDiv);
+        // Show recommendations in sidebar
+        recContainer.innerHTML = '';
+        if (data.recommendations && data.recommendations.length > 0) {
+          data.recommendations.forEach(rec => {
+            const card = document.createElement('div');
+            card.className = "rec-card";
+            card.innerHTML = `
+              <img src="${rec.poster_url || 'https://placehold.co/40x60'}" alt="">
+              <div>
+                <div class="text-sm font-bold">${rec.title}</div>
+                <div class="text-xs text-gray-400">${rec.year || ''}</div>
+              </div>
+            `;
+            card.onclick = () => {
+              userInput.value = rec.title;
+              sendMessage();
+            };
+            recContainer.appendChild(card);
           });
+        } else {
+          recContainer.innerHTML = '<p class="text-gray-400 text-sm">No recommendations found</p>';
         }
-
-        // Fact bubbles
-        if (data.fun_facts && data.fun_facts.length) {
-          appendFactBubbles(data.fun_facts);
-        }
-
-        triggerHorrorEffects();
       } catch (err) {
-        appendMessage('bot', "⚠️ Oracle error: " + err.message);
+        appendMessage('bot', "Dark forces block my vision. Try again later.");
       }
     }
 
-    function createBloodDrop() {
-      const d = document.createElement("div");
-      d.classList.add("blood-drop");
-      d.style.left = Math.random()*100 + "vw";
-      document.body.appendChild(d);
-      setTimeout(() => d.remove(), 2000);
-    }
-    function createBloodSplatter() {
-      const s = document.createElement("div");
-      s.classList.add("blood-splatter");
-      s.style.left = Math.random()*100 + "vw";
-      s.style.top = Math.random()*100 + "vh";
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 1000);
-    }
-    function triggerFlicker() {
-      document.body.classList.add("flicker");
-      setTimeout(() => document.body.classList.remove("flicker"), 100);
-    }
-    function triggerHorrorEffects() {
-      for (let i=0;i<5;i++) setTimeout(() => createBloodDrop(), i*200);
-      for (let i=0;i<2;i++) setTimeout(() => createBloodSplatter(), i*500);
-      triggerFlicker(); setTimeout(triggerFlicker,300); setTimeout(triggerFlicker,1200);
-    }
-
-    sendBtn.addEventListener("click", sendMessage);
-    userInput.addEventListener("keydown", e => { if (e.key==="Enter") sendMessage(); });
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
