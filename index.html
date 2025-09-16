@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,253 +7,321 @@
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --bg-color: #0a0a0a;
-      --text-color: #e0e0e0;
-      --accent-color: #b91c1c;
-      --secondary-color: #7d1414;
-      --input-bg: #1a1a1a;
-      --chat-bg: #111111;
-      --user-bubble: #333;
-      --bot-bubble: #222;
-      --blood-color: #7d0b0b;
-    }
-
     body {
       font-family: 'Roboto', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
+      background: #000;
+      color: #fff;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background-image: linear-gradient(to bottom, #200122, #060107);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .bg-image {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://placehold.co/1920x1080/000/fff'); /* Placeholder, you can replace with your own horror image */
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.2);
+        z-index: -1;
     }
 
-    .creepster { font-family: 'Creepster', cursive; }
-    .nosifer { font-family: 'Nosifer', cursive; }
-
-    .container {
-      display: flex;
-      flex: 1;
-      padding: 1rem;
-      gap: 2rem;
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+      position: relative;
+      z-index: 10;
     }
 
-    .side-panel {
-      width: 250px;
-      background: rgba(17, 17, 17, 0.7);
+    .chat-interface {
+      display: none;
+      height: calc(100vh - 4rem);
+      max-height: 800px;
+      background: rgba(0, 0, 0, 0.7);
       border: 1px solid #333;
-      border-radius: 12px;
-      padding: 1rem;
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      transition: all 0.5s ease-in-out;
+    }
+    
+    .chat-area {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 1rem;
+    }
+    
+    .messages {
+      flex-grow: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      max-height: calc(100vh - 100px);
-      overflow-y: auto;
+      padding-right: 0.5rem;
     }
-
-    .side-panel-title {
-      color: var(--accent-color);
-      font-weight: bold;
-      text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 10px;
+    
+    .messages::-webkit-scrollbar {
+        width: 8px;
     }
-
-    .chat-window {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--chat-bg);
-      border: 1px solid #333;
-      border-radius: 12px;
-      overflow: hidden;
+    
+    .messages::-webkit-scrollbar-track {
+        background: transparent;
     }
-
-    .chat-history {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      scroll-behavior: smooth;
+    
+    .messages::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
     }
-
-    .chat-input-area {
-      padding: 1rem;
-      background: var(--chat-bg);
-      border-top: 1px solid #333;
-      display: flex;
-      gap: 0.5rem;
+    
+    .messages::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
-
-    .chat-bubble {
-      max-width: 80%;
-      padding: 0.75rem;
-      border-radius: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .user-bubble {
-      background: var(--user-bubble);
+    
+    .message-bubble.user {
       align-self: flex-end;
-      margin-left: auto;
+      background: #262626;
+      border-radius: 1rem 1rem 0 1rem;
+      padding: 0.75rem 1rem;
+    }
+    
+    .message-bubble.bot {
+      align-self: flex-start;
+      background: #1c1c1c;
+      border-radius: 1rem 1rem 1rem 0;
+      padding: 0.75rem 1rem;
     }
 
-    .bot-bubble {
-      background: var(--bot-bubble);
-      align-self: flex-start;
+    .recommendations-area {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 1px solid #333;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
     }
 
     .rec-card {
-      background: rgba(40, 40, 40, 0.5);
-      border: 1px solid #444;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 0.5rem;
     }
-
+    
     .rec-card:hover {
-      border-color: var(--accent-color);
+        background: rgba(255, 255, 255, 0.05);
     }
-
+    
     .rec-card img {
-      width: 40px;
-      height: 60px;
-      border-radius: 4px;
+        width: 40px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    .rec-card div {
+        flex: 1;
     }
 
-    @media (max-width: 768px) {
-      .container { flex-direction: column; }
-      .side-panel { width: 100%; max-height: 200px; }
-      .chat-window { height: 60vh; }
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .blood-drop {
+        position: fixed;
+        width: 15px;
+        height: 15px;
+        background-color: #7d0b0b;
+        border-radius: 50%;
+        animation: drop linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes drop {
+        0% { transform: translateY(-10vh) scale(0); opacity: 0; }
+        5% { transform: translateY(0vh) scale(1); opacity: 1; }
+        100% { transform: translateY(110vh) scale(1); opacity: 0; }
+    }
+
+    .flicker {
+      animation: flicker 0.1s infinite;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <div class="centered-container mx-auto">
-    <header class="w-full flex justify-between items-center p-4">
-      <h1 class="nosifer text-4xl text-white">Horror Oracle</h1>
-    </header>
 
-    <div class="container">
-      <!-- Recommendations Panel -->
-      <aside class="side-panel">
-        <h2 class="side-panel-title">Recommended Movies</h2>
-        <div id="recommendations-container">
-          <p class="text-gray-400 text-sm">Search for a movie to see recommendations</p>
-        </div>
-      </aside>
-
-      <!-- Chat Window -->
-      <main class="chat-window">
-        <div id="chat-history" class="chat-history">
-          <div class="bot-bubble text-sm">
-            <p class="font-bold text-gray-400">Horror Oracle</p>
-            <p>Greetings, mortal. What dark knowledge do you seek today?</p>
-          </div>
-        </div>
-        <div class="chat-input-area">
-          <input type="text" id="user-input" placeholder="Type a movie, director, or subgenre..." class="flex-1 px-4 py-3 rounded-full bg-gray-800 text-white">
-          <button id="send-btn" class="px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700">Send</button>
-        </div>
-      </main>
-    </div>
+  <div class="bg-image"></div>
+  
+  <div id="landing-page" class="center-content">
+      <h1 class="text-6xl md:text-8xl font-bold text-red-700 tracking-wider mb-8 drop-shadow-xl creepster">
+          HORROR ORACLE
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-300 font-light mb-8 max-w-2xl px-4">
+          Enter the crypt and ask the Oracle your deepest, darkest questions about horror movies.
+      </p>
+      <div class="w-full max-w-xl relative">
+          <input type="text" id="initial-input" placeholder="Ask about a movie..." 
+                 class="w-full bg-gray-900 border border-gray-700 rounded-full py-4 px-6 text-lg text-gray-200 focus:outline-none focus:border-red-600 transition-colors">
+          <button id="initial-btn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-full transition-colors">
+              Ask
+          </button>
+      </div>
   </div>
 
+  <div id="chat-page" class="chat-interface hidden">
+    <div class="chat-area">
+      <div class="messages flex-grow overflow-y-auto pr-2">
+        </div>
+      <div class="mt-4 flex gap-2">
+        <input type="text" id="userInput" placeholder="Ask the Oracle a question..." class="flex-grow bg-[#1a1a1a] text-white border border-[#333] rounded-full py-3 px-5 focus:outline-none focus:border-red-600 transition-colors">
+        <button id="sendBtn" class="bg-red-700 text-white rounded-full py-3 px-6 hover:bg-red-800 transition-colors">
+          Send
+        </button>
+      </div>
+    </div>
+    
+    <div class="recommendations-area">
+        <h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Recommendations</h2>
+        <div id="rec-container" class="space-y-4">
+            <p class="text-gray-400 text-sm">Recommendations will appear here after your first query.</p>
+        </div>
+    </div>
+  </div>
+  
   <script>
-    const chatHistory = document.getElementById('chat-history');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const recContainer = document.getElementById('recommendations-container');
+    document.addEventListener('DOMContentLoaded', () => {
+      const landingPage = document.getElementById('landing-page');
+      const chatPage = document.getElementById('chat-page');
+      const initialInput = document.getElementById('initial-input');
+      const initialBtn = document.getElementById('initial-btn');
+      const userInput = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const messagesContainer = document.querySelector('.messages');
+      const recContainer = document.getElementById('rec-container');
 
-    function appendMessage(sender, text, posterUrl=null, buyLink=null, fact=null) {
-      const bubble = document.createElement('div');
-      bubble.className = `chat-bubble ${sender === 'user' ? 'user-bubble' : 'bot-bubble'}`;
-      bubble.innerHTML = `<p>${text}</p>`;
-
-      if (posterUrl) {
-        const img = document.createElement('img');
-        img.src = posterUrl;
-        img.alt = "Movie Poster";
-        img.className = "mt-2 rounded";
-        bubble.appendChild(img);
+      function hideLandingPage() {
+        landingPage.classList.add('hidden');
+        chatPage.classList.remove('hidden');
       }
 
-      if (buyLink) {
-        const link = document.createElement('a');
-        link.href = buyLink;
-        link.target = "_blank";
-        link.className = "block mt-2 text-blue-400 underline";
-        link.textContent = "Buy this movie";
-        bubble.appendChild(link);
-      }
+      function appendMessage(sender, text, posterUrl, amazonLink, interestingFact) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-bubble max-w-[80%] md:max-w-[60%] ${sender === 'user' ? 'user' : 'bot'} text-sm`;
 
-      if (fact) {
-        const factBtn = document.createElement('button');
-        factBtn.textContent = "Did you know?";
-        factBtn.className = "mt-2 px-3 py-1 text-xs bg-red-600 text-white rounded-full hover:bg-red-700";
-        factBtn.onclick = () => {
-          appendMessage('bot', fact);
-        };
-        bubble.appendChild(factBtn);
-      }
-
-      chatHistory.appendChild(bubble);
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    async function sendMessage() {
-      const query = userInput.value.trim();
-      if (!query) return;
-      appendMessage('user', query);
-      userInput.value = '';
-
-      try {
-        const response = await fetch('/ask-oracle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
-        });
-
-        const data = await response.json();
-        appendMessage('bot', data.summary || "The Oracle is silent...", data.poster_url, data.amazon_link, data.interesting_fact);
-
-        // Show recommendations in sidebar
-        recContainer.innerHTML = '';
-        if (data.recommendations && data.recommendations.length > 0) {
-          data.recommendations.forEach(rec => {
-            const card = document.createElement('div');
-            card.className = "rec-card";
-            card.innerHTML = `
-              <img src="${rec.poster_url || 'https://placehold.co/40x60'}" alt="">
-              <div>
-                <div class="text-sm font-bold">${rec.title}</div>
-                <div class="text-xs text-gray-400">${rec.year || ''}</div>
-              </div>
-            `;
-            card.onclick = () => {
-              userInput.value = rec.title;
-              sendMessage();
-            };
-            recContainer.appendChild(card);
-          });
+        if (sender === 'user') {
+          messageDiv.textContent = text;
         } else {
-          recContainer.innerHTML = '<p class="text-gray-400 text-sm">No recommendations found</p>';
+          let html = '';
+          if (posterUrl) {
+            html += `<div class="mb-4"><img src="${posterUrl}" alt="Movie Poster" class="rounded-lg max-w-full"></div>`;
+          }
+          html += `<div>${processMarkdown(text)}</div>`;
+          if (interestingFact) {
+            html += `<div class="mt-4 text-xs italic text-gray-400">Fact: ${interestingFact}</div>`;
+          }
+          if (amazonLink) {
+            html += `<a href="${amazonLink}" target="_blank" class="mt-4 inline-block text-red-400 hover:text-red-300 transition-colors text-xs">Buy or rent on Amazon</a>`;
+          }
+          messageDiv.innerHTML = html;
         }
-      } catch (err) {
-        appendMessage('bot', "Dark forces block my vision. Try again later.");
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
-    }
+      
+      // Function to process markdown for bot responses
+      function processMarkdown(text) {
+          text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+          text = text.replace(/\\n/g, '<br>');
+          return text;
+      }
 
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
+      async function sendMessage(inputElement) {
+        const query = inputElement.value.trim();
+        if (!query) return;
+
+        appendMessage('user', query);
+        inputElement.value = '';
+
+        try {
+          const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+          });
+
+          const data = await response.json();
+          appendMessage('bot', data.summary || "The Oracle is silent...", data.poster_url, data.amazon_link, data.interesting_fact);
+
+          // Show recommendations in sidebar
+          recContainer.innerHTML = '';
+          if (data.recommendations && data.recommendations.length > 0) {
+            data.recommendations.forEach(rec => {
+              const card = document.createElement('div');
+              card.className = "rec-card";
+              card.innerHTML = `
+                <img src="${rec.poster_url || 'https://placehold.co/40x60'}" alt="">
+                <div>
+                  <div class="text-sm font-bold">${rec.title}</div>
+                  <div class="text-xs text-gray-400">${rec.year || ''}</div>
+                </div>
+              `;
+              card.onclick = () => {
+                userInput.value = rec.title;
+                sendMessage(userInput);
+              };
+              recContainer.appendChild(card);
+            });
+          } else {
+            recContainer.innerHTML = '<p class="text-gray-400 text-sm">No recommendations found</p>';
+          }
+        } catch (err) {
+          appendMessage('bot', "Dark forces block my vision. Try again later.");
+        }
       }
+
+      initialBtn.addEventListener('click', () => {
+        hideLandingPage();
+        sendMessage(initialInput);
+      });
+
+      initialInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          hideLandingPage();
+          sendMessage(initialInput);
+        }
+      });
+      
+      sendBtn.addEventListener('click', () => sendMessage(userInput));
+      userInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage(userInput);
+        }
+      });
+
     });
   </script>
 </body>
