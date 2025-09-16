@@ -7,41 +7,47 @@
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #e0e0e0;
+      --accent-color: #b91c1c;
+      --secondary-color: #7d1414;
+      --input-bg: #1a1a1a;
+      --chat-bg: #111111;
+      --user-bubble: #333;
+      --bot-bubble: #222;
+      --blood-color: #7d0b0b;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+    
     body {
       font-family: 'Roboto', sans-serif;
-      background: #000;
-      color: #fff;
+      background: var(--bg-color);
+      color: var(--text-color);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
+      background-image: linear-gradient(to bottom, #200122, #060107);
     }
     
-    .bg-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('https://placehold.co/1920x1080/000/fff'); /* Placeholder, you can replace with your own horror image */
-        background-size: cover;
-        background-position: center;
-        filter: brightness(0.2);
-        z-index: -1;
-    }
-
+    .creepster { font-family: 'Creepster', cursive; }
+    
     .main-container {
       width: 100%;
       max-width: 1200px;
       padding: 2rem;
       position: relative;
       z-index: 10;
+      margin: auto;
     }
 
     .chat-interface {
-      display: none;
       height: calc(100vh - 4rem);
       max-height: 800px;
       background: rgba(0, 0, 0, 0.7);
@@ -107,7 +113,7 @@
       padding: 1.5rem 1rem;
       overflow-y: auto;
     }
-
+    
     .rec-card {
         display: flex;
         align-items: center;
@@ -133,24 +139,35 @@
         flex: 1;
     }
 
-    .center-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      transition: opacity 0.5s ease-in-out;
+    .sidebar-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #333;
+    }
+    
+    .my-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 0.5rem;
+    }
+    
+    .my-list-item:hover {
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .blood-drop {
         position: fixed;
         width: 15px;
         height: 15px;
-        background-color: #7d0b0b;
+        background-color: var(--blood-color);
         border-radius: 50%;
         animation: drop linear infinite;
         pointer-events: none;
+        z-index: 999;
     }
 
     @keyframes drop {
@@ -170,66 +187,75 @@
     }
   </style>
 </head>
-<body>
+<body class="flicker">
 
-  <div class="bg-image"></div>
-  
-  <div id="landing-page" class="center-content">
-      <h1 class="text-6xl md:text-8xl font-bold text-red-700 tracking-wider mb-8 drop-shadow-xl creepster">
-          HORROR ORACLE
-      </h1>
-      <p class="text-xl md:text-2xl text-gray-300 font-light mb-8 max-w-2xl px-4">
-          Enter the crypt and ask the Oracle your deepest, darkest questions about horror movies.
-      </p>
-      <div class="w-full max-w-xl relative">
-          <input type="text" id="initial-input" placeholder="Ask about a movie..." 
-                 class="w-full bg-gray-900 border border-gray-700 rounded-full py-4 px-6 text-lg text-gray-200 focus:outline-none focus:border-red-600 transition-colors">
-          <button id="initial-btn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-full transition-colors">
-              Ask
-          </button>
-      </div>
-  </div>
-
-  <div id="chat-page" class="chat-interface hidden">
-    <div class="chat-area">
-      <div class="messages flex-grow overflow-y-auto pr-2">
+  <div class="main-container">
+    <div id="chat-page" class="chat-interface">
+        <div class="chat-area">
+          <div class="messages flex-grow overflow-y-auto pr-2">
+            <div class="message-bubble bot max-w-lg mb-4">
+              <h2 class="text-3xl font-bold text-red-700 mb-2 creepster">HORROR ORACLE</h2>
+              <p>Welcome, mortal. I am the Horror Oracle. Ask your deepest, darkest questions about horror movies. Tell me what you seek, and I shall unveil the truth.</p>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <input type="text" id="userInput" placeholder="Ask the Oracle a question..." class="flex-grow bg-[#1a1a1a] text-white border border-[#333] rounded-full py-3 px-5 focus:outline-none focus:border-red-600 transition-colors">
+            <button id="sendBtn" class="bg-red-700 text-white rounded-full py-3 px-6 hover:bg-red-800 transition-colors">
+              Send
+            </button>
+          </div>
         </div>
-      <div class="mt-4 flex gap-2">
-        <input type="text" id="userInput" placeholder="Ask the Oracle a question..." class="flex-grow bg-[#1a1a1a] text-white border border-[#333] rounded-full py-3 px-5 focus:outline-none focus:border-red-600 transition-colors">
-        <button id="sendBtn" class="bg-red-700 text-white rounded-full py-3 px-6 hover:bg-red-800 transition-colors">
-          Send
-        </button>
-      </div>
-    </div>
-    
-    <div class="recommendations-area">
-        <h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Recommendations</h2>
-        <div id="rec-container" class="space-y-4">
-            <p class="text-gray-400 text-sm">Recommendations will appear here after your first query.</p>
+        
+        <div class="recommendations-area">
+            <h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Recommendations</h2>
+            <div id="rec-container" class="space-y-4">
+                <p class="text-gray-400 text-sm">Recommendations will appear here after your first query.</p>
+            </div>
+            
+            <div class="sidebar-section">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 creepster">My List</h2>
+                <div id="my-list-container" class="space-y-2">
+                    <p class="text-gray-400 text-sm">Movies you add will appear here.</p>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Other</h2>
+                <div class="flex flex-col space-y-2 mt-2">
+                    <button id="toggleReleasesBtn" class="text-white py-2 px-4 rounded-md text-sm border border-gray-600 hover:bg-gray-800 transition-colors">
+                        Recent Releases
+                    </button>
+                    <button id="newsBtn" class="text-white py-2 px-4 rounded-md text-sm border border-gray-600 hover:bg-gray-800 transition-colors">
+                        Horror News
+                    </button>
+                    <button id="forumBtn" class="text-white py-2 px-4 rounded-md text-sm border border-gray-600 hover:bg-gray-800 transition-colors">
+                        Forum Preview
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
   </div>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const landingPage = document.getElementById('landing-page');
-      const chatPage = document.getElementById('chat-page');
-      const initialInput = document.getElementById('initial-input');
-      const initialBtn = document.getElementById('initial-btn');
       const userInput = document.getElementById('userInput');
       const sendBtn = document.getElementById('sendBtn');
       const messagesContainer = document.querySelector('.messages');
       const recContainer = document.getElementById('rec-container');
-
-      function hideLandingPage() {
-        landingPage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
-      }
+      const myListContainer = document.getElementById('my-list-container');
+      const toggleReleasesBtn = document.getElementById('toggleReleasesBtn');
+      const newsBtn = document.getElementById('newsBtn');
+      const forumBtn = document.getElementById('forumBtn');
+      
+      let myMovies = [];
+      let recentReleases = [];
 
       function appendMessage(sender, text, posterUrl, amazonLink, interestingFact) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message-bubble max-w-[80%] md:max-w-[60%] ${sender === 'user' ? 'user' : 'bot'} text-sm`;
-
+        
         if (sender === 'user') {
           messageDiv.textContent = text;
         } else {
@@ -250,7 +276,6 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
       
-      // Function to process markdown for bot responses
       function processMarkdown(text) {
           text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
           text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -258,12 +283,12 @@
           return text;
       }
 
-      async function sendMessage(inputElement) {
-        const query = inputElement.value.trim();
+      async function sendMessage() {
+        const query = userInput.value.trim();
         if (!query) return;
 
         appendMessage('user', query);
-        inputElement.value = '';
+        userInput.value = '';
 
         try {
           const response = await fetch('/ask', {
@@ -275,7 +300,6 @@
           const data = await response.json();
           appendMessage('bot', data.summary || "The Oracle is silent...", data.poster_url, data.amazon_link, data.interesting_fact);
 
-          // Show recommendations in sidebar
           recContainer.innerHTML = '';
           if (data.recommendations && data.recommendations.length > 0) {
             data.recommendations.forEach(rec => {
@@ -290,7 +314,7 @@
               `;
               card.onclick = () => {
                 userInput.value = rec.title;
-                sendMessage(userInput);
+                sendMessage();
               };
               recContainer.appendChild(card);
             });
@@ -302,26 +326,106 @@
         }
       }
 
-      initialBtn.addEventListener('click', () => {
-        hideLandingPage();
-        sendMessage(initialInput);
-      });
+      function saveMyList() {
+          localStorage.setItem('myList', JSON.stringify(myMovies));
+      }
 
-      initialInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          hideLandingPage();
-          sendMessage(initialInput);
-        }
-      });
+      function loadMyList() {
+          const storedList = localStorage.getItem('myList');
+          if (storedList) {
+              myMovies = JSON.parse(storedList);
+              renderMyList();
+          }
+      }
+
+      function renderMyList() {
+          myListContainer.innerHTML = '';
+          if (myMovies.length === 0) {
+              myListContainer.innerHTML = '<p class="text-gray-400 text-sm">Movies you add will appear here.</p>';
+          } else {
+              myMovies.forEach(movie => {
+                  const item = document.createElement('div');
+                  item.className = "my-list-item";
+                  item.innerHTML = `
+                      <span class="text-sm font-medium">${movie}</span>
+                      <button class="remove-btn text-red-500 hover:text-red-700 text-xs font-bold">X</button>
+                  `;
+                  item.querySelector('.remove-btn').onclick = (e) => {
+                      e.stopPropagation();
+                      myMovies = myMovies.filter(m => m !== movie);
+                      saveMyList();
+                      renderMyList();
+                  };
+                  item.onclick = () => {
+                      userInput.value = movie;
+                      sendMessage();
+                  };
+                  myListContainer.appendChild(item);
+              });
+          }
+      }
       
-      sendBtn.addEventListener('click', () => sendMessage(userInput));
+      async function getRecentReleases() {
+          try {
+              const response = await fetch('/recent_releases');
+              const data = await response.json();
+              recentReleases = data.releases;
+          } catch (e) {
+              console.error("Failed to fetch recent releases:", e);
+          }
+      }
+
+      function toggleReleases() {
+        if (recContainer.querySelector('h2')?.textContent.includes('Recent Releases')) {
+            // Restore recommendations view
+            recContainer.innerHTML = '<h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Recommendations</h2>';
+        } else {
+            // Display recent releases
+            recContainer.innerHTML = '<h2 class="text-2xl font-bold text-red-700 mb-4 creepster">Recent Releases</h2>';
+            if (recentReleases.length > 0) {
+                recentReleases.forEach(release => {
+                    const recItem = document.createElement('div');
+                    recItem.className = 'rec-card';
+                    recItem.innerHTML = `
+                      <img src="${release.poster_url || 'https://placehold.co/40x60'}" alt="">
+                      <div>
+                        <div class="text-sm font-bold">${release.title}</div>
+                        <div class="text-xs text-gray-400">${release.year || ''}</div>
+                      </div>
+                    `;
+                    recItem.onclick = () => {
+                        userInput.value = release.title;
+                        sendMessage();
+                    };
+                    recContainer.appendChild(recItem);
+                });
+            } else {
+                recContainer.innerHTML += '<p class="text-gray-400 text-sm">No recent releases found. Check API keys.</p>';
+            }
+        }
+      }
+
+      function showHorrorNews() {
+        alert("This feature is not yet implemented.");
+      }
+      function showForumPreview() {
+        alert("This feature is not yet implemented.");
+      }
+      
+      sendBtn.addEventListener('click', sendMessage);
       userInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          sendMessage(userInput);
+          sendMessage();
         }
       });
+      toggleReleasesBtn.addEventListener('click', toggleReleases);
+      newsBtn.addEventListener('click', showHorrorNews);
+      forumBtn.addEventListener('click', showForumPreview);
 
+      // Load initial data and effects
+      loadMyList();
+      getRecentReleases();
     });
   </script>
 </body>
